@@ -13,11 +13,10 @@ int strlcpy(char *dst, const char *src, int size){
 #define PRECISION	1.0e9	// 9 digits after decimal, fits in 32-bit int
 
 int itostr(char *dst, LONG x, int size){
-	int len = 0;
 	char buf[12];
+	char neg = 0;
 	if(x < 0){
-		 *buf = '-';
-		++len;
+		neg = 1;
 		x = -x; // Will fail if x is max negative number
 		if( x < 0 )
 			--x;	// Force to max val via 2's compliment
@@ -26,8 +25,11 @@ int itostr(char *dst, LONG x, int size){
 	for(i = 0; x; x = x/10){
 		buf[i++] = x%10 + '0';
 	}
-	int j;
-	for(j=0; (i)&&(j<size-1); ++j){
+	int j=0;
+	if(neg){
+		dst[j++] = '-';
+	}
+	for(; (i)&&(j<size-1); ++j){
 		dst[j] = buf[--i];
 	}
 	buf[j] = 0; // null terminate
