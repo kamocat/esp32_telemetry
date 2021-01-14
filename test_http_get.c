@@ -23,15 +23,12 @@ int main( int argc, char **argv){
 	printf("Made string of length %d:\r\n", len);
 	puts(buf);
 	
-	for( int i = 30; i; --i ){
+/*
+	for( int i = 30; i>5; --i ){
 		numkey(buf, i, "Test", -987.6543212345e-50);
 		puts(buf);
 	}
-	
-	for( int i = 20; i>5; --i ){
-		numkey(buf, i, "Trim", 12345.678901);
-		puts(buf);
-	}
+*/
 		
 	return 0;
 }

@@ -59,6 +59,7 @@ int ftostr(char *dst, double x, int size){
 		for(; x<1000.; exp-=3){
 			x *= 1000.;
 		}
+		++exp;
 		exp = 1+itostr(exp_string, exp, sizeof(exp_string));
 	}
 	// Reasonable range. Use moving decimal format
@@ -78,16 +79,13 @@ int ftostr(char *dst, double x, int size){
 int stringkey(char *buf, int size, char *name, char *val){
 	if (size < 6)
 		return 0;	// Not enough space to bother
-	size -= 2; // account for 2 added characters (= and &)
-	int len = strlcpy(buf, name, size);
-	size -= len;
-	buf += len;
-	*buf++ = '='; // replace null byte with equals
-	len = strlcpy(buf, val, size);
-	size -= len;
-	buf += len;
-	*buf++ = '&'; // replace null byte with equals
-	*buf = 0; // Null-terminate
+	// account for 2 added characters (= and &)
+	int len = strlcpy(buf, name, size-2);
+	buf[len++] = '=';
+	// Account for remaining added character (&)
+	len += strlcpy(buf+len, val, size-1-len);
+	buf[len++] = '&'; // replace null byte with equals
+	buf[len] = 0; // Null-terminate
 	return len;
 }
 	
@@ -95,16 +93,13 @@ int stringkey(char *buf, int size, char *name, char *val){
 int numkey(char *buf, int size, char *name, double val){
 	if (size < 6)
 		return 0;	// Not enough space to bother
-	size -= 2; // account for 2 added characters (= and &)
-	int len = strlcpy(buf, name, size);
-	size -= len;
-	buf += len;
-	*buf++ = '='; // replace null byte with equals
-	len = ftostr(buf, val, size);
-	size -= len;
-	buf += len;
-	*buf++ = '&'; // replace null byte with equals
-	*buf = 0; // Null-terminate
+	// account for 2 added characters (= and &)
+	int len = strlcpy(buf, name, size-2);
+	buf[len++] = '=';
+	// Account for remaining added character (&)
+	len += ftostr(buf+len, val, size-1-len);
+	buf[len++] = '&'; // replace null byte with equals
+	buf[len] = 0; // Null-terminate
 	return len;
 }
 char *header(char *buf, int *len, char *host, int port){
