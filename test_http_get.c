@@ -5,33 +5,31 @@
 
 int main( int argc, char **argv){
 	char buf[200];
-	int size_rem = sizeof(buf);
+	int size = sizeof(buf);
 	int len;
 	
-	len = itostr(buf, -123456789, size_rem);
+	len = itostr(buf, -123456789, size);
 	printf("Converted int to %d-length string: %s\r\n", len, buf);
 	
-	len = ftostr(buf, 123.456789E-23, size_rem);
+	len = ftostr(buf, 123.456789E-23, size);
 	printf("Converted float to %d-length string: %s\r\n", len, buf);
 	
-	char * ptr = stringkey(buf, &size_rem, "label", "testing");
-	ptr = numkey(ptr, &size_rem, "temperature", 6.5);
-	ptr = numkey(ptr, &size_rem, "light", 14e50);
-	ptr = numkey(ptr, &size_rem, "other", 91e-50);
+	len = 0; // Reset to beginning of string again
+	len = stringkey(buf+len, size-len, "label", "testing");
+	len += numkey(buf+len, size-len, "temperature", 6.5);
+	len += numkey(buf+len, size-len, "light", 14e50);
+	len += numkey(buf+len, size-len, "other", 91e-50);
 
-	len = strnlen(buf, sizeof(buf));
-	printf("Made string of length %d with %d bytes remaining:\r\n", len, size_rem);
+	printf("Made string of length %d:\r\n", len);
 	puts(buf);
 	
 	for( int i = 30; i; --i ){
-		int j = i;
-		numkey(buf, &j, "Test", -987.6543212345e-50);
+		numkey(buf, i, "Test", -987.6543212345e-50);
 		puts(buf);
 	}
 	
 	for( int i = 20; i>5; --i ){
-		int j = i;
-		numkey(buf, &j, "Trim", 12345.678901);
+		numkey(buf, i, "Trim", 12345.678901);
 		puts(buf);
 	}
 		

@@ -73,39 +73,40 @@ int ftostr(char *dst, double x, int size){
 	return len; 
 }
 
-char *stringkey(char *buf, int *size, char *name, char *val){
-	if (*size < 6)
-		return buf;	// Not enough space to bother
-	*size -= 2; // account for 2 added characters (= and &)
-	int len = strlcpy(buf, name, *size);
-	*size -= len;
+int stringkey(char *buf, int size, char *name, char *val){
+	if (size < 6)
+		return 0;	// Not enough space to bother
+	size -= 2; // account for 2 added characters (= and &)
+	int len = strlcpy(buf, name, size);
+	size -= len;
 	buf += len;
 	*buf++ = '='; // replace null byte with equals
-	len = strlcpy(buf, val, *size);
-	*size -= len;
+	len = strlcpy(buf, val, size);
+	size -= len;
 	buf += len;
 	*buf++ = '&'; // replace null byte with equals
 	*buf = 0; // Null-terminate
-	return buf;
+	return len;
 }
 	
 	
-char *numkey(char *buf, int *size, char *name, double val){
-	if (*size < 6)
-		return buf;	// Not enough space to bother
-	*size -= 2; // account for 2 added characters (= and &)
-	int len = strlcpy(buf, name, *size);
-	*size -= len;
+int numkey(char *buf, int size, char *name, double val){
+	if (size < 6)
+		return 0;	// Not enough space to bother
+	size -= 2; // account for 2 added characters (= and &)
+	int len = strlcpy(buf, name, size);
+	size -= len;
 	buf += len;
 	*buf++ = '='; // replace null byte with equals
-	len = ftostr(buf, val, *size);
-	*size -= len;
+	len = ftostr(buf, val, size);
+	size -= len;
 	buf += len;
 	*buf++ = '&'; // replace null byte with equals
 	*buf = 0; // Null-terminate
-	return buf;
+	return len;
 }
 char *header(char *buf, int *len, char *host, int port){
+	
 	return buf;
 }
 	
