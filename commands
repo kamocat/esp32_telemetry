@@ -1,0 +1,4 @@
+sudo ncat -l 9999 #Listens on port 9999
+telnet gostling 9999 #Connects to port 9999 (on this machine called gosling)
+drill @8.8.8.8 TXT example.com # Looks up IP of example.com from 8.8.8.8
+avahi-discover-standalong # shows available zeroconf services

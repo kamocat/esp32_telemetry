@@ -1,0 +1,9 @@
+GET / HTTP/1.1
+Host: gosling:9999
+Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8
+Upgrade-Insecure-Requests: 1
+User-Agent: Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/13.0 Safari/605.1.15 Surf/2.0
+Accept-Encoding: gzip, deflate
+Accept-Language: en-US
+Connection: Keep-Alive
+
