@@ -15,7 +15,11 @@ int strlcpy(char *dst, const char *src, int size){
 int itostr(char *dst, LONG x, int size){
 	char buf[12];
 	char neg = 0;
-	if(x < 0){
+	if(size < 2)
+		return 0;
+	if(x == 0){
+		return strlcpy(dst, "0", size);
+	}else if(x < 0){
 		neg = 1;
 		x = -x; // Will fail if x is max negative number
 		if( x < 0 )
@@ -29,10 +33,10 @@ int itostr(char *dst, LONG x, int size){
 	if(neg){
 		dst[j++] = '-';
 	}
-	for(; (i)&&(j<size-1); ++j){
+	for(; (i)&&(j<(size-1)); ++j){
 		dst[j] = buf[--i];
 	}
-	buf[j] = 0; // null terminate
+	dst[j] = 0; // null terminate
 	return j;
 }
 
@@ -40,7 +44,9 @@ int ftostr(char *dst, double x, int size){
 	int len = 0;
 	if(size <= 4)
 		return 0; // not enough space to do anything
-	if(x < 0){
+	if( x == 0.0 ){
+		return strlcpy(dst, "0.0", size);
+	} else if(x < 0){
 		*dst = '-';
 		++len;
 		x = -x;
@@ -50,17 +56,16 @@ int ftostr(char *dst, double x, int size){
 	LONG y = x + 1;
 	if(x > y){
 		// Too large, use scientific notation
-		for(; x>1000.; exp+=3){
+		for(exp=0; x>1000.; exp+=3){
 			x *= 0.001;
 		}
 		exp = 1+itostr(exp_string, exp, sizeof(exp_string));
 	} else if( x < 0.1) {
 		// Too small, use scientific notation
-		for(; x<1000.; exp-=3){
+		for(exp=0; x<1.; exp-=3){
 			x *= 1000.;
 		}
-		++exp;
-		exp = 1+itostr(exp_string, exp, sizeof(exp_string));
+		exp = itostr(exp_string, exp, sizeof(exp_string));
 	}
 	// Reasonable range. Use moving decimal format
 	y = x;
@@ -71,12 +76,12 @@ int ftostr(char *dst, double x, int size){
 	len += itostr(dst+len, y, size-len-exp);
 	if( exp ){
 		dst[len++]='E';
-		len += strlcpy(dst+len, exp_string, exp);
+		len += strlcpy(dst+len, exp_string, sizeof(exp_string));
 	}
 	return len; 
 }
 
-int stringkey(char *buf, int size, char *name, char *val){
+int stringkey(char *buf, char *name, char *val, int size){
 	if (size < 6)
 		return 0;	// Not enough space to bother
 	// account for 2 added characters (= and &)
@@ -90,7 +95,7 @@ int stringkey(char *buf, int size, char *name, char *val){
 }
 	
 	
-int numkey(char *buf, int size, char *name, double val){
+int numkey(char *buf, char *name, double val, int size){
 	if (size < 6)
 		return 0;	// Not enough space to bother
 	// account for 2 added characters (= and &)
@@ -102,8 +107,18 @@ int numkey(char *buf, int size, char *name, double val){
 	buf[len] = 0; // Null-terminate
 	return len;
 }
-char *header(char *buf, int *len, char *host, int port){
-	
-	return buf;
+int header(char *buf, char *host, int port, int size){
+	int len = 0;
+	len += strlcpy(buf+len, "GET /?", size-len);
+	len += stringkey(buf+len, "test","simple", size-len);
+	len += numkey(buf+len, "ID",300, size-len );
+	--len;	// Remove the trailing &
+	len += strlcpy(buf+len, " HTTP/1.1\nHost: ", size-len);
+	len += strlcpy(buf+len, host, size-len);
+	len += strlcpy(buf+len, ":", size-len);
+	len += itostr(buf+len, port, size-len);
+	len += strlcpy(buf+len, "\nUser-Agent: esp32\n", size-len);
+	len += strlcpy(buf+len, "Accept: text/html\n\n", size-len);
+	return len;
 }
 	

@@ -3,32 +3,101 @@
 #include <string.h>
 #include <stdint.h>
 
-int main( int argc, char **argv){
-	char buf[200];
+int loud_compare(char*a, char*b, int size){
+	if(strncmp(a,b,size)){
+		printf("Expected \"%s\" but got \"%s\"\r\n", b, a);
+		return 1;
+	}
+	return 0;
+}
+
+int test_itostr(void){
+	char buf[50];
 	int size = sizeof(buf);
 	int len;
+	int fail = 0;
+	char * golden; 	// Intended result of test
 	
+	printf("Testing itostr()...");
 	len = itostr(buf, -123456789, size);
-	printf("Converted int to %d-length string: %s\r\n", len, buf);
+	golden = "-123456789";
+	fail += loud_compare(buf, golden, size);
+	
+	len = itostr(buf, 0, size);
+	golden = "0";
+	fail += loud_compare(buf, golden, size);
+	
+	len = itostr(buf, 876543210, 5);
+	golden = "8765";
+	fail += loud_compare(buf, golden, size);
+	
+	if(fail)
+		puts("FAIL");
+	else
+		puts("PASS");
+	return fail;
+}
+
+int test_ftostr(void){
+	char buf[50];
+	int size = sizeof(buf);
+	int len;
+	int fail = 0;
+	char * golden;
+	
+	printf("Testing ftostr()...");
+	len = ftostr(buf, 0.0, size);
+	golden = "0.0";
+	fail += loud_compare(buf, golden, size);
 	
 	len = ftostr(buf, 123.456789E-23, size);
-	printf("Converted float to %d-length string: %s\r\n", len, buf);
+	golden = "1.234567889E-21"; // Slightly different due to representation issues
+	fail += loud_compare(buf, golden, size);
 	
-	len = 0; // Reset to beginning of string again
-	len = stringkey(buf+len, size-len, "label", "testing");
-	len += numkey(buf+len, size-len, "temperature", 6.5);
-	len += numkey(buf+len, size-len, "light", 14e50);
-	len += numkey(buf+len, size-len, "other", 91e-50);
+	len = ftostr(buf, 857E56, 9);
+	golden = "85.70E57";
+	fail += loud_compare(buf, golden, size);
+	
+	len = ftostr(buf, 1.359, 6);
+	golden = "1.359";
+	fail += loud_compare(buf, golden, size);
 
-	printf("Made string of length %d:\r\n", len);
-	puts(buf);
+	if(fail)
+		puts("FAIL");
+	else
+		puts("PASS");
+	return fail;
+}
+
+int test_key(void){
+	char buf[200];
+	int size = sizeof(buf);
+	char * golden;
+	int fail = 0;
 	
-/*
-	for( int i = 30; i>5; --i ){
-		numkey(buf, i, "Test", -987.6543212345e-50);
-		puts(buf);
-	}
-*/
-		
+	printf("Testing stringkey and numkey...");
+	int len = 0;
+	len = stringkey(buf, "label", "testing", size-len);
+	golden = "label=testing&";
+	fail += loud_compare(buf, golden, size);
+	
+	len = numkey(buf, "temperature", 6.5, 19);
+	golden = "temperature=6.500&";
+	fail += loud_compare(buf, golden, size);
+	
+	if(fail)
+		puts("FAIL");
+	else
+		puts("PASS");
+	return fail;
+}
+
+int main( int argc, char **argv){
+	int fail = 0;
+	fail += test_itostr();
+	fail += test_ftostr();
+	fail += test_key();
+	printf("%d cases failed\r\n", fail);
+	
 	return 0;
 }
