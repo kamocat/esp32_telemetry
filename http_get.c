@@ -107,11 +107,13 @@ int numkey(char *buf, char *name, double val, int size){
 	buf[len] = 0; // Null-terminate
 	return len;
 }
-int header(char *buf, char *host, int port, int size){
+int header(char *buf, char *host, int port, double sun, double temperature, double moisture, int size){
 	int len = 0;
 	len += strlcpy(buf+len, "GET /?", size-len);
-	len += stringkey(buf+len, "test","simple", size-len);
-	len += numkey(buf+len, "ID",300, size-len );
+	len += stringkey(buf+len, "name","frontyard", size-len);
+	len += numkey(buf+len, "sun",sun, size-len );
+	len += numkey(buf+len, "heat",temperature, size-len );
+	len += numkey(buf+len, "wet",moisture, size-len );
 	--len;	// Remove the trailing &
 	len += strlcpy(buf+len, " HTTP/1.1\nHost: ", size-len);
 	len += strlcpy(buf+len, host, size-len);

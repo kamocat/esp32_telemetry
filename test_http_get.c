@@ -94,7 +94,7 @@ int test_key(void){
 
 int test_header(void){
 	char buf[200];
-	header(buf, "gosling.local", 9999, sizeof(buf));
+	header(buf, "gosling.local", 9999, 45, 2.6, 0.0023, sizeof(buf));
 	puts(buf);
 	return 0;
 }
