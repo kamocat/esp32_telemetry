@@ -92,11 +92,19 @@ int test_key(void){
 	return fail;
 }
 
+int test_header(void){
+	char buf[200];
+	header(buf, "gosling.local", 9999, sizeof(buf));
+	puts(buf);
+	return 0;
+}
+
 int main( int argc, char **argv){
 	int fail = 0;
 	fail += test_itostr();
 	fail += test_ftostr();
 	fail += test_key();
+	fail += test_header();
 	printf("%d cases failed\r\n", fail);
 	
 	return 0;
