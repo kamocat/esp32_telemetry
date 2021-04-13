@@ -1,2 +1,4 @@
-exec_test
+test_get
+test_util
+test_post
 
