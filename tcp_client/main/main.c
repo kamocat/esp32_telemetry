@@ -17,13 +17,23 @@
 #include "nvs_flash.h"
 #include "esp_netif.h"
 #include "tcp_task.h"
+#include "http_post.h"
+#include "adc_task.h"
 
+// Declared extern in http_post.h
+QueueHandle_t http_queue;
 
 void app_main(void)
 {
 	ESP_ERROR_CHECK(nvs_flash_init());
 	ESP_ERROR_CHECK(esp_netif_init());
 	ESP_ERROR_CHECK(esp_event_loop_create_default());
+	
+	http_queue = xQueueCreate(2, sizeof( struct QMsg ) );
+	if( 0 == http_queue ){
+		ESP_LOGD("MAIN", "Failed to create http queue");
+	}
 
 	xTaskCreate(tcp_client_task, "tcp_client", 4096, NULL, 5, NULL);
+	xTaskCreate(adc_sample_task, "adc", 4096, NULL, 4, NULL);
 }

@@ -1,7 +1,7 @@
 #include "http_util.h"
 #include "http_post.h"
 
-// FIXME: Doesn't escape to ensure valid json
+// FIXME: Escape specialty JSON characters
 int json_string(char *buf, char *name, char *val, int size){
 	if (size < 10)
 		return 0;	// Not enough space to bother
@@ -27,7 +27,7 @@ int json_num(char *buf, char *name, double val, int size){
 	return len;
 }
 
-int http_post(char *buf, char *host, int port, double ch1, double ch2, double ch3, double ch4, int size){
+int http_post(char *buf, char *host, int port, struct QMsg * msg, int size){
 	int len = 0;
 	len += strlcpy(buf+len, "POST /volts/new ", size-len);
 	--len;	// Remove the trailing &
@@ -41,10 +41,10 @@ int http_post(char *buf, char *host, int port, double ch1, double ch2, double ch
 	len += strlcpy(buf+len, "Content-Length:     \n\n", size-len);
 	int body_start = len;	// Keep as a placeholder
 	len += strlcpy(buf+len, "{", size-len);
-	len += json_num(buf+len, "ch1",ch1, size-len );
-	len += json_num(buf+len, "ch2",ch2, size-len );
-	len += json_num(buf+len, "ch3",ch3, size-len );
-	len += json_num(buf+len, "ch4",ch4, size-len );
+	len += json_num(buf+len, "ch1",msg->ch1, size-len );
+	len += json_num(buf+len, "ch2",msg->ch2, size-len );
+	len += json_num(buf+len, "ch3",msg->ch3, size-len );
+	len += json_num(buf+len, "ch4",msg->ch4, size-len );
 	buf[len-1] = '}'; // Remove trailing comma, replace with closing brace
 	
 	/* Fix the "content-length" field */

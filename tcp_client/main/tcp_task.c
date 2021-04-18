@@ -106,12 +106,13 @@ void tcp_client_task(void *pvParameters)
 		} else {
 			ESP_LOGI(TAG, "Query A: %s.local resolved to: " IPSTR, host_name, IP2STR(&addr));
 			char tx_buffer[300];
-			http_post(tx_buffer, host_name, PORT, 1.1, 2.2, 3.3, 4.4, sizeof(tx_buffer));
+			struct QMsg m;
+			xQueueReceive(http_queue, &m, 30000 / portTICK_PERIOD_MS);
+			http_post(tx_buffer, host_name, PORT, &m, sizeof(tx_buffer));
 			ESP_LOGI(TAG, "Built HTTP message");
 			tcp_send(addr, tx_buffer, rx_buffer, sizeof(rx_buffer));
 			ESP_LOGI(TAG, "RECEIVED: %s", rx_buffer);
 		}
-		vTaskDelay(10000 / portTICK_PERIOD_MS);
 	}
 	vTaskDelete(NULL);
 }
