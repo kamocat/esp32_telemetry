@@ -91,8 +91,7 @@ void tcp_client_task(void *pvParameters)
 	 * examples/protocols/README.md for more information about this function.
 	 */
 	ESP_ERROR_CHECK(example_connect());
-
-	while (1) {
+	while(1){
 		ESP_LOGI(TAG, "Looking for %s", host_name);
 		struct esp_ip4_addr addr;
 		addr.addr = 0;
@@ -105,14 +104,20 @@ void tcp_client_task(void *pvParameters)
 			}
 		} else {
 			ESP_LOGI(TAG, "Query A: %s.local resolved to: " IPSTR, host_name, IP2STR(&addr));
-			char tx_buffer[300];
-			struct QMsg m;
-			xQueueReceive(http_queue, &m, 30000 / portTICK_PERIOD_MS);
-			http_post(tx_buffer, host_name, PORT, &m, sizeof(tx_buffer));
-			ESP_LOGI(TAG, "Built HTTP message");
-			tcp_send(addr, tx_buffer, rx_buffer, sizeof(rx_buffer));
-			ESP_LOGI(TAG, "RECEIVED: %s", rx_buffer);
+			while (1) {
+				char tx_buffer[300];
+				struct QMsg m;
+				if( !xQueueReceive(http_queue, &m, 1000*60*10 / portTICK_PERIOD_MS)){
+					ESP_LOGI(TAG, "Queue timed out");
+					break; // Took too long. Maybe turn off wifi for power save?
+				}
+				http_post(tx_buffer, host_name, PORT, &m, sizeof(tx_buffer));
+				ESP_LOGI(TAG, "Built HTTP message");
+				tcp_send(addr, tx_buffer, rx_buffer, sizeof(rx_buffer));
+				ESP_LOGI(TAG, "RECEIVED: %s", rx_buffer);
+			}
 		}
 	}
+
 	vTaskDelete(NULL);
 }

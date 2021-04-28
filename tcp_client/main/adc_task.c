@@ -10,7 +10,7 @@
 #include "driver/adc.h"
 
 static char * TAG = "ADC";
-const double atten = 2.6 / 4096;
+const double atten = 1.0 / 4096;
 
 void adc_sample_task(void *pvParameters)
 {
@@ -26,17 +26,17 @@ void adc_sample_task(void *pvParameters)
 	while(1){
 		++i;
 		int val = adc1_get_raw(ADC1_CHANNEL_4);
-		m.ch1 += val * atten;
+		m.ch1 = val * atten;
 		val = adc1_get_raw(ADC1_CHANNEL_5);
-		m.ch2 += val * atten;
+		m.ch2 = val * atten;
 		val = adc1_get_raw(ADC1_CHANNEL_6);
-		m.ch3 += val * atten;
+		m.ch3 = val * atten;
 		val = adc1_get_raw(ADC1_CHANNEL_7);
-		m.ch4 += val * atten;
-		ESP_LOGI(TAG, "Read ADC value %d", val);
+		m.ch4 = val * atten;
+		ESP_LOGI(TAG, "Read ADC value %f", m.ch1);
 		xQueueSendToBack(http_queue, &m, (TickType_t) 10);
 		ESP_LOGI(TAG, "Queued message %d", i);
-		vTaskDelay(10000 / portTICK_PERIOD_MS);
+		vTaskDelay(1000*60*5/ portTICK_PERIOD_MS);	// 5 minutes
 	}
 	vTaskDelete(NULL);
 }
