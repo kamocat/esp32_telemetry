@@ -1,13 +1,12 @@
 #include "freertos/FreeRTOS.h"
 #include "freertos/queue.h"
 
+#define LOCATION_ID 20
+
 extern QueueHandle_t http_queue;
 
 struct QMsg{
 	double ch1;
-	double ch2;
-	double ch3;
-	double ch4;
 };
 
 int json_string(char *buf, char *name, char *val, int size);

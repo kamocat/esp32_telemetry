@@ -29,7 +29,7 @@ int json_num(char *buf, char *name, double val, int size){
 
 int http_post(char *buf, char *host, int port, struct QMsg * msg, int size){
 	int len = 0;
-	len += strlcpy(buf+len, "POST /volts/new ", size-len);
+	len += strlcpy(buf+len, "POST /sun/new ", size-len);
 	--len;	// Remove the trailing &
 	len += strlcpy(buf+len, " HTTP/1.1\nHost: ", size-len);
 	len += strlcpy(buf+len, host, size-len);
@@ -41,10 +41,8 @@ int http_post(char *buf, char *host, int port, struct QMsg * msg, int size){
 	len += strlcpy(buf+len, "Content-Length:     \n\n", size-len);
 	int body_start = len;	// Keep as a placeholder
 	len += strlcpy(buf+len, "{", size-len);
-	len += json_num(buf+len, "ch1",msg->ch1, size-len );
-	len += json_num(buf+len, "ch2",msg->ch2, size-len );
-	len += json_num(buf+len, "ch3",msg->ch3, size-len );
-	len += json_num(buf+len, "ch4",msg->ch4, size-len );
+	len += json_num(buf+len, "sunlight",msg->ch1, size-len );
+	len += json_num(buf+len, "place",LOCATION_ID, size-len );
 	buf[len-1] = '}'; // Remove trailing comma, replace with closing brace
 	
 	/* Fix the "content-length" field */
