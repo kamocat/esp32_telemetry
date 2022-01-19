@@ -25,7 +25,9 @@
 #include "netdb.h"
 #include "http_post.h"
 
-#define PORT 8001
+#define PORT 7080
+#define HOSTNAME "homebase"
+#define HOST_IP "192.168.1.110"
 
 static const char *TAG = "tcp_client";
 
@@ -83,7 +85,7 @@ int tcp_send(struct esp_ip4_addr addr, char * msg, char * rx_buffer, int rx_len)
 void tcp_client_task(void *pvParameters)
 {
 	char rx_buffer[128];
-	char * host_name = "hope";
+	char * host_name = HOSTNAME;
 	ESP_ERROR_CHECK( mdns_init() );
 
 	/* This helper function configures Wi-Fi or Ethernet, as selected in menuconfig.
@@ -95,6 +97,10 @@ void tcp_client_task(void *pvParameters)
 		ESP_LOGI(TAG, "Looking for %s", host_name);
 		struct esp_ip4_addr addr;
 		addr.addr = 0;
+#ifdef HOST_IP
+        if(1){
+          inet_pton(AF_INET, HOST_IP, &addr);            
+#else
 		esp_err_t err = mdns_query_a(host_name, 2000,  &addr);
 		if(err){
 			if(err == ESP_ERR_NOT_FOUND){
@@ -104,6 +110,7 @@ void tcp_client_task(void *pvParameters)
 			}
 		} else {
 			ESP_LOGI(TAG, "Query A: %s.local resolved to: " IPSTR, host_name, IP2STR(&addr));
+#endif
 			while (1) {
 				char tx_buffer[300];
 				struct QMsg m;

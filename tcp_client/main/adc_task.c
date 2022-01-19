@@ -16,7 +16,7 @@ const double atten = 1.0 / (4096 * OVERSAMPLE);
 void adc_sample_task(void *pvParameters)
 {
 	adc1_config_width(ADC_WIDTH_BIT_12);	
-	adc1_config_channel_atten(ADC1_CHANNEL_4,ADC_ATTEN_DB_6); // measure up to 1750mV
+	adc1_config_channel_atten(ADC1_CHANNEL_7,ADC_ATTEN_DB_6); // measure up to 1750mV
 	
 	struct QMsg m;
 	m.ch1 = 1;
@@ -25,7 +25,7 @@ void adc_sample_task(void *pvParameters)
 		++i;
         int32_t val = 0;
         for(int i = 0; i < OVERSAMPLE; ++i){
-		  val += adc1_get_raw(ADC1_CHANNEL_4);
+		  val += adc1_get_raw(ADC1_CHANNEL_7);
         }
 		m.ch1 = val * atten;
 		ESP_LOGI(TAG, "Read ADC value %f", m.ch1);

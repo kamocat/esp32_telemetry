@@ -1,7 +1,7 @@
 #include "freertos/FreeRTOS.h"
 #include "freertos/queue.h"
 
-#define LOCATION_ID 20
+#define LOCATION_ID 1
 
 extern QueueHandle_t http_queue;
 
