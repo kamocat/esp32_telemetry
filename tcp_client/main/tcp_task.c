@@ -24,6 +24,7 @@
 #include "mdns.h"
 #include "netdb.h"
 #include "http_post.h"
+#include "esp_sleep.h"
 
 #define PORT 7080
 #define HOSTNAME "homebase"
@@ -111,19 +112,22 @@ void tcp_client_task(void *pvParameters)
 		} else {
 			ESP_LOGI(TAG, "Query A: %s.local resolved to: " IPSTR, host_name, IP2STR(&addr));
 #endif
-			while (1) {
-				char tx_buffer[300];
-				struct QMsg m;
-				if( !xQueueReceive(http_queue, &m, 1000*60*10 / portTICK_PERIOD_MS)){
-					ESP_LOGI(TAG, "Queue timed out");
-					break; // Took too long. Maybe turn off wifi for power save?
-				}
-				http_post(tx_buffer, host_name, PORT, &m, sizeof(tx_buffer));
-				ESP_LOGI(TAG, "Built HTTP message");
-				tcp_send(addr, tx_buffer, rx_buffer, sizeof(rx_buffer));
-				ESP_LOGI(TAG, "RECEIVED: %s", rx_buffer);
-			}
+            char tx_buffer[300];
+            struct QMsg m;
+            if( !xQueueReceive(http_queue, &m, 1000*60*10 / portTICK_PERIOD_MS)){
+                ESP_LOGI(TAG, "Queue timed out");
+                break; // Took too long. Maybe turn off wifi for power save?
+            }
+            http_post(tx_buffer, host_name, PORT, &m, sizeof(tx_buffer));
+            ESP_LOGI(TAG, "Built HTTP message");
+            tcp_send(addr, tx_buffer, rx_buffer, sizeof(rx_buffer));
+            ESP_LOGI(TAG, "RECEIVED: %s", rx_buffer);
 		}
+        // Power down for sleep
+        esp_wifi_stop();
+        // Sleep for 5 minutes
+        esp_sleep_enable_timer_wakeup( 5*60*1000000 );
+        esp_deep_sleep_start();
 	}
 
 	vTaskDelete(NULL);
